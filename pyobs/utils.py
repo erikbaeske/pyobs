@@ -87,19 +87,31 @@ def valerr(value, error, significant_digits=2):
     """
 
     d = significant_digits - 1
+    iscomplex = numpy.iscomplexobj(value)
 
     def core(v, e):
-        if e == 0:
-            return f"{v:g}"
-        exp = int(numpy.floor(numpy.log10(e)) - d)
-        if exp < 0:
-            out = f"%.{-exp}f" % v
-            if (exp + d) >= 0:
-                out += f"(%.{-exp}f)" % (e * 10 ** -(exp + d))
+        if iscomplex: 
+            v = [v.real, v.imag]
+            e = [e.real, e.imag]
+        else: 
+            v = [v]
+            e = [e]
+
+        out = ''
+        for isim, (vi, ei) in enumerate(zip(v, e)):
+            out += "+" if vi>=0.0 else "-"
+            
+            exp = int(numpy.floor(numpy.log10(ei if ei != 0.0 else 1.0)) - d)
+            if exp < 0:
+                out += f"%.{-exp}f" % numpy.abs(vi)
+                if (exp + d) >= 0:
+                    out += f"(%.{-exp}f)" % (ei * 10 ** -(exp + d))
+                else:
+                    out += f"({ei * 10 ** -(exp):.0f})"
             else:
-                out += f"({e * 10 ** -(exp):.0f})"
-        else:
-            out = f"{v:.0f}({e:.0f})"
+                out += f"{numpy.abs(vi):.0f}({ei:.0f})"
+            out += 'i' if isim else ''
+            
         return out
 
     if numpy.ndim(value) == 0:

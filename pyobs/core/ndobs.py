@@ -366,6 +366,11 @@ class observable:
                     [pyobs.valerr(v[i, j], e[i, j]) for j in range(self.shape[1])]
                 )
                 out += "\n"
+        else: 
+            v = v.ravel()
+            e = e.ravel() 
+            out += "\t".join([pyobs.valerr(v[i], e[i]) for i in range(self.size)])
+            out += "\n"
         return out
 
     def __repr__(self):  # pragma: no cover
