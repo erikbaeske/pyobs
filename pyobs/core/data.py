@@ -72,6 +72,8 @@ def conv_ND(data, idx, lat, xmax, a=0, b=None):
     for index in [a, b]:
         if index is not None:
             f = np.max(data[index, :])
+            if f == 0.0: # if fluctuations vanish, replace by 0 / 1 
+                f = 1.0
             rescale *= f
             aux += [create_fft_data(data[index, :] / f, idx, shape, fft_ax)]
 
