@@ -78,6 +78,7 @@ class variance:
             if self.cvar[a, 0] == 0.0:
                 i = 0
             else:
+                i = 0
                 for i in range(1, len(self.x)):
                     if self.g(i, a) > 0:
                         break
