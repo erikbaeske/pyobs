@@ -583,6 +583,24 @@ class observable:
             g0 = pyobs.gradient(lambda x: x * y, self.mean, gtype="diag")
             return pyobs.derobs([self], self.mean * y, [g0])
 
+    def multiply(self, y):
+        if isinstance(y, pyobs.observable):
+            if self.shape == y.shape:
+                g0 = pyobs.gradient(lambda x: x * y.mean, self.mean, gtype="diag")
+                g1 = pyobs.gradient(lambda x: self.mean * x, y.mean, gtype="diag")
+            elif self.shape == (1,):
+                g0 = pyobs.gradient(lambda x: x * y.mean, self.mean, gtype="full")
+                g1 = pyobs.gradient(lambda x: self.mean * x, y.mean, gtype="diag")
+            elif y.shape == (1,):
+                g0 = pyobs.gradient(lambda x: x * y.mean, self.mean, gtype="diag")
+                g1 = pyobs.gradient(lambda x: self.mean * x, y.mean, gtype="full")
+            else:  # pragma: no cover
+                raise pyobs.PyobsError("Shape mismatch, cannot multiply")
+            return pyobs.derobs([self, y], self.mean * y.mean, [g0, g1])
+        else:
+            g0 = pyobs.gradient(lambda x: x * y, self.mean, gtype="full")
+            return pyobs.derobs([self], self.mean * y, [g0])
+
     def __matmul__(self, y):
         if isinstance(y, observable):
             g0 = pyobs.gradient(lambda x: x @ y.mean, self.mean)
