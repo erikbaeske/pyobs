@@ -440,6 +440,18 @@ class observable:
     def __getitem__(self, args):
         if pyobs.is_type(args, pyobs.types.INT, slice, np.ndarray):
             args = [args]
+        elif args is Ellipsis:
+            args = [slice(None)] * len(self.shape)
+        else:
+            if any(a is Ellipsis for a in args):
+                num_ellipses_dims = len(self.shape) - sum(1 for a in args if a is not Ellipsis)
+                expanded = []
+                for a in args:
+                    if a is Ellipsis:
+                        expanded.extend([slice(None)] * num_ellipses_dims)
+                    else:
+                        expanded.append(a)
+                args = expanded
         na = len(args)
         pyobs.assertion(na == len(self.shape), "Unexpected argument")
 
@@ -449,11 +461,24 @@ class observable:
         return transform(self, f)
 
     def __setitem__(self, args, yobs):
+        if args is Ellipsis:
+            args = (slice(None),) * len(self.shape)
+        elif isinstance(args, tuple) and any(a is Ellipsis for a in args):
+            num_ellipses_dims = len(self.shape) - sum(1 for a in args if a is not Ellipsis)
+            expanded = []
+            for a in args:
+                if a is Ellipsis:
+                    expanded.extend([slice(None)] * num_ellipses_dims)
+                else:
+                    expanded.append(a)
+            args = tuple(expanded)
+
         if pyobs.is_type(args, pyobs.types.INT, slice, np.ndarray):
             args = [args]
         else:
+            # n.b. [slice(None)] is not a valid index
             args = [
-                [a] if pyobs.is_type(a, pyobs.types.INT, slice, np.ndarray) else a
+                [a] if pyobs.is_type(a, pyobs.types.INT) else a
                 for a in args
             ]
 
