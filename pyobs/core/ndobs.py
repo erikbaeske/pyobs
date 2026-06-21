@@ -192,6 +192,12 @@ class observable:
         self.mean = np.reshape(self.mean, self.shape)
         pyobs.memory.update(self)
 
+    @classmethod
+    def from_data(cls, data, ename="Ens", description="unknown", icnfg=None, rname=None, shape=(1,), lat=None):
+        obs = cls(description=description)
+        obs.create(ename, data, icnfg=icnfg, rname=rname, shape=shape, lat=lat)
+        return obs
+
     def create_from_cov(self, cname, value, covariance):
         """
         Create observables based on covariance matrices
