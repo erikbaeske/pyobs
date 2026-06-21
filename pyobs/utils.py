@@ -101,17 +101,21 @@ def valerr(value, error, significant_digits=2):
         for isim, (vi, ei) in enumerate(zip(v, e)):
             out += "+" if vi>=0.0 else "-"
             
-            exp = int(numpy.floor(numpy.log10(ei if ei != 0.0 else 1.0)) - d)
-            if exp < 0:
-                out += f"%.{-exp}f" % numpy.abs(vi)
-                if (exp + d) >= 0:
-                    out += f"(%.{-exp}f)" % (ei * 10 ** -(exp + d))
+            exp = numpy.floor(numpy.log10(ei if ei != 0.0 else 1.0)) - d
+            if numpy.isfinite(exp): 
+                exp = int(exp)
+                if exp < 0:
+                    out += f"%.{-exp}f" % numpy.abs(vi)
+                    if (exp + d) >= 0:
+                        out += f"(%.{-exp}f)" % (ei * 10 ** -(exp + d))
+                    else:
+                        out += f"({ei * 10 ** -(exp):.0f})"
                 else:
-                    out += f"({ei * 10 ** -(exp):.0f})"
-            else:
-                out += f"{numpy.abs(vi):.0f}({ei:.0f})"
+                    out += f"{numpy.abs(vi):.0f}({ei:.0f})"
+            else: 
+                out += f"{numpy.abs(vi):g}({ei})"
             out += 'i' if isim else ''
-            
+
         return out
 
     if numpy.ndim(value) == 0:
