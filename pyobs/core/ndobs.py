@@ -615,6 +615,9 @@ class observable:
         g0 = pyobs.gradient(lambda x: -x * (new_mean**2), self.mean, gtype="diag")
         return pyobs.derobs([self], new_mean, [g0])
 
+    def inv(self):
+        return pyobs.linalg.inv(self)
+
     def __truediv__(self, y):
         if isinstance(y, observable):
             return self * y.reciprocal()
@@ -686,6 +689,17 @@ class observable:
         if np.iscomplexobj(self.mean):
             return self.real() - 1j * self.imag()
         return self
+
+    @property
+    def re(self):
+        return self.real()
+
+    @property
+    def im(self):
+        return self.imag()
+
+    def __abs__(self):
+        return pyobs.sqrt(self.re*self.re + self.im*self.im)
 
     ##################################
     # Error functions
