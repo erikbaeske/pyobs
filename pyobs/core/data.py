@@ -143,7 +143,7 @@ class delta:
             res.delta = pyobs.array(self.delta, self.delta.dtype)
         else:
             res = delta(self.mask, self.idx, lat=self.lat)
-            res.delta = pyobs.double_array(second(self.delta))
+            res.delta = pyobs.array(second(self.delta), second(self.delta).dtype)
         return res
 
     def __getitem__(self, args):
@@ -200,7 +200,7 @@ class delta:
         # takes into accounts holes present in d.delta but absent in self.delta
         rescale_delta = self.n / d.n
 
-        if (np.iscomplexobj(grad.grad)) or (np.iscomplexobj(d.delta)):
+        if grad.is_complex() or np.iscomplexobj(d.delta):
             self.delta = self.delta.astype(pyobs.complex)
         grad.apply(self.delta, self.mask, jlist, d.delta * rescale_delta, d.mask)
 
