@@ -646,32 +646,16 @@ class observable:
 
     # in-place operations
     def __iadd__(self, y):
-        tmp = self + y
-        del self
-        self = pyobs.observable(tmp)
-        del tmp
-        return self
+        return self + y
 
     def __isub__(self, y):
-        tmp = self - y
-        del self
-        self = pyobs.observable(tmp)
-        del tmp
-        return self
+        return self - y
 
     def __imul__(self, y):
-        tmp = self * y
-        del self
-        self = pyobs.observable(tmp)
-        del tmp
-        return self
+        return self * y
 
     def __itruediv__(self, y):
-        tmp = self / y
-        del self
-        self = pyobs.observable(tmp)
-        del tmp
-        return self
+        return self / y
 
     def real(self):
         return pyobs.observable(self, projector=lambda x: x.real)
