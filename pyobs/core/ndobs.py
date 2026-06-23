@@ -679,6 +679,9 @@ class observable:
     def __abs__(self):
         return pyobs.sqrt(self.re*self.re + self.im*self.im)
 
+    def abs(self):
+        return abs(self)
+
     ##################################
     # Error functions
 
