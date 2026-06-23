@@ -259,7 +259,10 @@ class observable:
         pyobs.memory.update(self)
 
     def __del__(self):
-        pyobs.memory.rm(self)
+        try: 
+            pyobs.memory.rm(self)
+        except AttributeError: 
+            pass
 
     def ename_from_delta(self):
         self.ename = []
