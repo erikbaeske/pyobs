@@ -441,20 +441,7 @@ class observable:
         return transform(self, f)
 
     def __getitem__(self, args):
-        if pyobs.is_type(args, pyobs.types.INT, slice, np.ndarray):
-            args = [args]
-        elif args is Ellipsis:
-            args = [slice(None)] * len(self.shape)
-        else:
-            if any(a is Ellipsis for a in args):
-                num_ellipses_dims = len(self.shape) - sum(1 for a in args if a is not Ellipsis)
-                expanded = []
-                for a in args:
-                    if a is Ellipsis:
-                        expanded.extend([slice(None)] * num_ellipses_dims)
-                    else:
-                        expanded.append(a)
-                args = expanded
+        args = _sanitize_indices(args, self.shape)
         na = len(args)
         pyobs.assertion(na == len(self.shape), "Unexpected argument")
 
@@ -462,6 +449,10 @@ class observable:
             return pyobs.slice_ndarray(x, *args)
 
         return transform(self, f)
+    
+    @property
+    def iloc(self):
+        return _RTIndexed(self)
 
     def __setitem__(self, args, yobs):
         if args is Ellipsis:
@@ -928,3 +919,33 @@ class observable:
 
         pyobs.memory.update(res)
         return res
+
+class _RTIndexed:
+    def __init__(self, obs):
+        self.obs = obs
+
+    def __getitem__(self, args):
+        args = _sanitize_indices(args, self.obs.shape)
+        out = self.obs[args]
+        axeswints = []
+        for i, arg in enumerate(args):
+            if pyobs.is_type(arg, pyobs.types.INT):
+                axeswints.append(i)
+        return pyobs.remove_tensor(out, axis=axeswints) if axeswints else out
+
+def _sanitize_indices(args, shape):
+    if pyobs.is_type(args, pyobs.types.INT, slice, np.ndarray):
+        args = [args]
+    elif args is Ellipsis:
+        args = [slice(None)] * len(shape)
+    else:
+        if any(a is Ellipsis for a in args):
+            num_ellipses_dims = len(shape) - sum(1 for a in args if a is not Ellipsis)
+            expanded = []
+            for a in args:
+                if a is Ellipsis:
+                    expanded.extend([slice(None)] * num_ellipses_dims)
+                else:
+                    expanded.append(a)
+            args = expanded
+    return args
