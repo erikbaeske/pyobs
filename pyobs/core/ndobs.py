@@ -618,6 +618,18 @@ class observable:
         else:
             return self * (1 / y)
 
+    def contraction(self, subscripts): 
+        return pyobs.einsum(subscripts, self)
+
+    @property
+    def T(self): 
+        if len(self.shape) == 1:
+            return pyobs.stack([self])
+        elif len(self.shape) == 2:
+            return pyobs.transpose(self)
+        else:
+            raise pyobs.PyobsError("Can only transpose 1d or 2d arrays")
+
     # __array_priority__=1000
     __array_ufunc__ = None
 
