@@ -803,8 +803,15 @@ class observable:
         Returns:
            array: the error of the error
         """
-        [_, sigma_tot, dsigma_tot] = self.error_core(errinfo, False, None)
-        return dsigma_tot / (2 * np.sqrt(sigma_tot))
+        def error_error_real(obs):
+            [_, sigma_tot, dsigma_tot] = obs.error_core(errinfo, False, None)
+            return dsigma_tot / (2 * np.sqrt(sigma_tot))
+
+        if np.iscomplexobj(self.mean):
+                eoe = error_error_real(self.real()) + 1j*error_error_real(self.imag())
+        else:
+            eoe = error_error_real(self)
+        return eoe
 
     def tauint(self):
         """
