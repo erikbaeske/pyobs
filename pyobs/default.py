@@ -22,10 +22,13 @@
 import numpy as np
 import functools
 import time
+import numbers 
 
 __all__ = [
     "is_verbose",
     "set_verbose",
+    "set_matrixfreegrad",
+    "is_matrixfreegrad",
     "log_timer",
     "message",
     "complex",
@@ -38,6 +41,7 @@ double = np.float64
 int = np.int32
 
 verbose = ["save", "load", "mfit"]
+matrixfree = False 
 
 
 def is_verbose(func):
@@ -54,6 +58,18 @@ def set_verbose(func, yesno=True):
         if func in verbose:
             verbose.remove(func)
 
+def set_matrixfreegrad(mode):
+    # if mode = False always allocate gradient matrix (default)
+    # if mode = True  never allocate gradient matrix 
+    # if mode = N     allocate gradient matrix if Na x Ni < N else no allocation
+    global matrixfree
+    if isinstance(mode, numbers.Integral): 
+        matrixfree = mode 
+    else: 
+        raise Exception(f"mode must be True, False or an integer (not {mode})")
+    
+def is_matrixfreegrad():
+    return matrixfree
 
 def log_timer(tag):
     def decorator(func):
