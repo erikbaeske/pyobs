@@ -90,19 +90,19 @@ def valerr(value, error, significant_digits=2):
     iscomplex = numpy.iscomplexobj(value)
 
     def core(v, e):
-        if iscomplex: 
+        if iscomplex:
             v = [v.real, v.imag]
             e = [e.real, e.imag]
-        else: 
+        else:
             v = [v]
             e = [e]
 
-        out = ''
+        out = ""
         for isim, (vi, ei) in enumerate(zip(v, e)):
-            out += "+" if vi>=0.0 else "-"
-            
+            out += "+" if vi >= 0.0 else "-"
+
             exp = numpy.floor(numpy.log10(ei if ei != 0.0 else 1.0)) - d
-            if numpy.isfinite(exp): 
+            if numpy.isfinite(exp):
                 exp = int(exp)
                 if exp < 0:
                     out += f"%.{-exp}f" % numpy.abs(vi)
@@ -112,9 +112,9 @@ def valerr(value, error, significant_digits=2):
                         out += f"({ei * 10 ** -(exp):.0f})"
                 else:
                     out += f"{numpy.abs(vi):.0f}({ei:.0f})"
-            else: 
+            else:
                 out += f"{numpy.abs(vi):g}({ei})"
-            out += 'i' if isim else ''
+            out += "i" if isim else ""
 
         return out
 
@@ -154,7 +154,7 @@ def tex_table(mat, fmt=None):
 
     assertion(numpy.ndim(mat) == 2, "textable supports only 2D arrays")
 
-    (n, m) = numpy.shape(mat)
+    n, m = numpy.shape(mat)
     fmt = [".2f"] * m if fmt is None else fmt
 
     outstr = []

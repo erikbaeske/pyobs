@@ -47,7 +47,12 @@ def einsum(subscripts, *operands):
             continue
 
         # need to bind i for matrix free gradient mode (usual gradient evaluates f directly during the loop over i, whereas gradient free stores it and evaluates g(...) later)
-        f = lambda x, i=i: numpy.einsum(subscripts, *[means[j] for j in range(i)], x, *[means[j] for j in range(i+1, len(operands))])
+        f = lambda x, i=i: numpy.einsum(
+            subscripts,
+            *[means[j] for j in range(i)],
+            x,
+            *[means[j] for j in range(i + 1, len(operands))],
+        )
 
         grads.append(
             pyobs.gradient(f, operands[i].mean)

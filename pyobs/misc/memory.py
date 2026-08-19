@@ -54,7 +54,7 @@ def rm(obj):
     try:
         del book[id(obj)]
     except:
-        pass 
+        pass
 
 
 def get(obj):

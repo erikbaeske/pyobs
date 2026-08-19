@@ -22,7 +22,7 @@
 import numpy as np
 import functools
 import time
-import numbers 
+import numbers
 
 __all__ = [
     "is_verbose",
@@ -41,7 +41,7 @@ double = np.float64
 int = np.int32
 
 verbose = ["save", "load", "mfit"]
-matrixfree = False 
+matrixfree = False
 
 
 def is_verbose(func):
@@ -57,6 +57,7 @@ def set_verbose(func, yesno=True):
     else:
         if func in verbose:
             verbose.remove(func)
+
 
 def set_matrixfreegrad(mode):
     """
@@ -80,13 +81,15 @@ def set_matrixfreegrad(mode):
         The matrix free mode is typically faster for large observables and has a constant memory footprint.
     """
     global matrixfree
-    if isinstance(mode, numbers.Integral): 
-        matrixfree = mode 
-    else: 
+    if isinstance(mode, numbers.Integral):
+        matrixfree = mode
+    else:
         raise Exception(f"mode must be True, False or an integer (not {mode})")
-    
+
+
 def is_matrixfreegrad():
     return matrixfree
+
 
 def log_timer(tag):
     def decorator(func):

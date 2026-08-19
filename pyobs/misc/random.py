@@ -138,4 +138,4 @@ class generator:
             Q = numpy.diag(numpy.sqrt(w)) @ v.T
             out = mu + (pref * rn) @ Q
 
-        return out.reshape((N,)) if na==1 else out
+        return out.reshape((N,)) if na == 1 else out

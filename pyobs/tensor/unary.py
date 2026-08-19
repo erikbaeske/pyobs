@@ -77,20 +77,22 @@ def exp(x):
     """
     return __unary(x, numpy.exp, numpy.exp)
 
-def sqrt(x): 
-   """
-   Return the square-root element-wise. 
-   
-   Parameters: 
-      x (obs): input observable 
 
-   Returns: 
-      obs: the square-root of the input observable, element-wise. 
+def sqrt(x):
+    """
+    Return the square-root element-wise.
 
-   Examples: 
-      >>> y = pyobs.sqrt(x)  
-   """
-   return __unary(x, numpy.sqrt, lambda x: 0.5/numpy.sqrt(x))
+    Parameters:
+       x (obs): input observable
+
+    Returns:
+       obs: the square-root of the input observable, element-wise.
+
+    Examples:
+       >>> y = pyobs.sqrt(x)
+    """
+    return __unary(x, numpy.sqrt, lambda x: 0.5 / numpy.sqrt(x))
+
 
 def sin(x):
     """
