@@ -59,9 +59,26 @@ def set_verbose(func, yesno=True):
             verbose.remove(func)
 
 def set_matrixfreegrad(mode):
-    # if mode = False always allocate gradient matrix (default)
-    # if mode = True  never allocate gradient matrix 
-    # if mode = N     allocate gradient matrix if Na x Ni < N else no allocation
+    """
+    Modify the way the `gradient` class is instantiated and the way gradients are applied
+    i.e. the way the error propagation is handled:
+
+    if mode = False always allocate gradient matrix (default)
+    if mode = True  never allocate gradient matrix
+    if mode = N     allocate gradient matrix if Na x Ni < N else no allocation
+
+    the mode then affects the way the fluctuations are propagated in the following way:
+    - if the `Na x Ni` gradient matrix exists then its applied to the `Ni x Ncnfg` fluctuation matrix
+    - else the gradient is applied to each column of length `Ni` separately
+
+    Parameters:
+        mode (boolean, int): the new mode
+
+    Notes:
+        The mode is required at instatiation time and does not affect already constructed `gradient` objects.
+        The matrix mode is typically faster for small observables, but has a larger memory footprint.
+        The matrix free mode is typically faster for large observables and has a constant memory footprint.
+    """
     global matrixfree
     if isinstance(mode, numbers.Integral): 
         matrixfree = mode 

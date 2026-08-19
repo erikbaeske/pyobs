@@ -194,6 +194,20 @@ class observable:
 
     @classmethod
     def from_data(cls, data, ename="Ens", description="unknown", icnfg=None, rname=None, shape=(1,), lat=None):
+        """
+        Create an observable from data, wrapping `obs = pyobs.observable()` and `obs.create()` into one call 
+
+        Parameters: 
+            data (array): 
+            **kwargs (dict): parameters passed to either `pyobs.observable()` or `obs.create()`
+
+        Returns: 
+            observable: the observable
+
+        Examples: 
+            >>> data = [0.43, 0.42, 0.44, ... ]
+            >>> obs = pyobs.observable.from_data(data)
+        """
         obs = cls(description=description)
         obs.create(ename, data, icnfg=icnfg, rname=rname, shape=shape, lat=lat)
         return obs
@@ -452,6 +466,26 @@ class observable:
     
     @property
     def iloc(self):
+        """
+        Numpy-like slicing (same as `__getitem__` but drops axes indexed by an integer)
+
+        Parameters: 
+            indices: arrays, slices, ellipses or integers    
+        
+        Returns: 
+            observable: the sliced observable
+
+        Examples: 
+            >>> print(obs.shape)
+            (10, 3, 2)
+            >>> slicdeobs = obs.iloc[1:4, 1, :]
+            >>> print(slicedobs.shape)
+            (3,2)
+
+        Notes: 
+            this is not the same as calling `rt` on the `__getitem__` sliced observable
+            since `rt` (without extra arguments) drops any axis with length 1 
+        """
         return _RTIndexed(self)
 
     def __setitem__(self, args, yobs):
@@ -578,6 +612,20 @@ class observable:
             return pyobs.derobs([self], self.mean * y, [g0])
 
     def multiply(self, y):
+        """
+        Multiply `self * y`, where `y` can be an array even if `self` is a scalar
+        observable
+        
+        Parameters: 
+            y (observable, array, list, number): array to multiply by 
+
+        Returns: 
+            observable: the product
+
+        Notes: 
+            This should mainly be used for scalar_obs * array -> array_obs 
+            otherwise it will be slower than using `self * y` which uses `diag` gradients
+        """
         if isinstance(y, pyobs.observable):
             if self.shape == y.shape:
                 g0 = pyobs.gradient(lambda x: x * y.mean, self.mean, gtype="diag")
@@ -610,6 +658,17 @@ class observable:
         return pyobs.derobs([self], new_mean, [g0])
 
     def inv(self):
+        """
+        wrapper for `pyobs.linalg.inv()` for observables that are square matrices
+
+        Returns: 
+            observable: the inverse matrix 
+
+        Examples: 
+            >>> obs.shape
+            (3, 3)
+            >>> invobs = obs.inv()
+        """
         return pyobs.linalg.inv(self)
 
     def __truediv__(self, y):
@@ -619,10 +678,33 @@ class observable:
             return self * (1 / y)
 
     def contraction(self, subscripts): 
+        """
+        Contract the indices of the observable using einsums 
+
+        Returns: 
+            observable: the contracted observable
+
+        Examples: 
+            >>> obs.shape
+            (3, 3)
+            >>> trace = obs.contraction("ii")
+        """
         return pyobs.einsum(subscripts, self)
 
     @property
     def T(self): 
+        """
+        Transposes the observable 
+
+        Returns: 
+            observable: the transposed observable
+
+        Examples: 
+            >>> obs.shape
+            (10,)
+            >>> obs.T.shape 
+            (1,10)
+        """
         if len(self.shape) == 1:
             return pyobs.stack([self])
         elif len(self.shape) == 2:
@@ -682,16 +764,73 @@ class observable:
 
     @property
     def re(self):
+        """
+        Get the real part of the observable 
+
+        Returns: 
+            observable: the real part 
+
+        Examples: 
+            >>> obs
+            +0.407(91)+0.531(61)i	+0.503(83)+0.380(89)i
+            >>> obs.re
+            +0.407(91)	+0.503(83)
+
+        Notes: 
+            equivalent to `obs.real()`
+        """
         return self.real()
 
     @property
     def im(self):
+        """
+        Get the imaginary part of the observable
+
+        Returns: 
+            observable: the imaginary part 
+
+        Examples: 
+            >>> obs
+            +0.407(91)+0.531(61)i	+0.503(83)+0.380(89)i
+            >>> obs.im
+            +0.531(61)	+0.380(89)
+        
+        Notes: 
+            equivalent to `obs.imag()`
+        """
         return self.imag()
 
     def __abs__(self):
+        """
+        Get the absolute value of the (possibly complex) observable
+
+        Returns: 
+            observable: the absolute value 
+
+        Examples: 
+            >>> obs
+            +0.407(91)+0.531(61)i	+0.503(83)+0.380(89)i
+            >>> abs(obs)
+            +0.669(77)  +0.630(93)
+        """
         return pyobs.sqrt(self.re*self.re + self.im*self.im)
 
     def abs(self):
+        """
+        Get the aboslute value of the (possibly complex) observable
+
+        Returns: 
+            observable: the absolute value 
+
+        Examples: 
+            >>> obs
+            +0.407(91)+0.531(61)i	+0.503(83)+0.380(89)i
+            >>> obs.abs()
+            +0.669(77)  +0.630(93)
+
+        Notes: 
+            equivalent to `abs(obs)`
+        """
         return abs(self)
 
     ##################################
@@ -927,6 +1066,9 @@ class observable:
         return res
 
 class _RTIndexed:
+    """
+    Auxiliary class used to enable `[]` slicing for `obs.iloc`
+    """
     def __init__(self, obs):
         self.obs = obs
 
